@@ -1,0 +1,3 @@
+# NETBIOS.3
+# NETBIOS SMB CD...
+\x5C\.\.\.\x00\x00\x00

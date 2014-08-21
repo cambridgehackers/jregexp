@@ -1,0 +1,25 @@
+Regular Expression patterns for the design contest live here:
+
+  - all.N.mandatory.pat     Regular Expressions that must be run on all 
+                            streams, /regardless/ of category.
+  - all.N.optional.pat      Regular Expressions that can be run on all 
+                            streams, for extra points.
+  - FOO.category.pat        Regular Expression which identifies the FOO category
+  - FOO.N.mandatory.pat     Regular Expression N which must be run on streams
+                            of the FOO category.
+  - FOO.N.optional.pat      Regular Expressions that can be run on streams of
+                            the FOO category for extra points.
+  - other.optional/         Other categories that can be implemented for 
+                            bonus points. Beyond categorization no further
+                            regular expressions need to be run on them (beyond
+                            the ones which are run on all streams).
+
+* Regular Expressions were adapted from l7-filter and snort.
+* Regular Expressions in some cases have been simplified for the contest. They
+  are no longer meant to be used "in the wild."
+* Our Regular Expression parser is case-sensitive, and greedy. The 
+  repeat-N-times operator {N} has been inlined away. \d has been replaced with
+  [0-9]. \s has been replaced with [\x20\x09\x0a\x0b\x0d]. Spaces have been
+  replaced with \x20. ^ and $ have been removed, not because they don't work,
+  but to intentionally make the patterns more expensive to implement.
+
