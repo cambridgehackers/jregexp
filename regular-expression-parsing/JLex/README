@@ -1,0 +1,22 @@
+This is the default Deterministic Finite Automaton (DFA) generator provided by 
+the contest. It parses regular expressions and generates the automata using 
+JLex, a lexer/parser generator written in Java.
+
+The code is able to generate DFAs in C++, Verilog, and Bluespec.
+
+Command-Line invocation is as follows:
+java -cp <CLASSPATH> JLex.REParser <OUTPUT_LANGUAGE> <OUTPUT_PATH> <INPUT_FILE> <REGEX_NAME>
+
+Some Examples:
+java -cp Java/ JLex.REParser C dfas/C nntp.7.optional.pat NNTP_7
+
+java -cp Java/ JLex.REParser Bluespec dfas/Bluespec test.pat TEST_PATTERN
+
+java -cp Java/ JLex.REParser Verilog ../../dfas/Bluespec ../../../patterns/ftp.category.pat FTP_CATEGORY
+
+A version of the Java Development kit is required if you wish to modify this
+code. This code was originally written by Sam Gross, Adam Lerer and Ben Gelb.
+
+
+REParser.java   * The regular expression parser and generator.
+Main.java       * JLex source code.
