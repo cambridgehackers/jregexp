@@ -1,0 +1,27 @@
+This directory contains examples of building a regex matcher using the generated
+dfas. Examples are provided for C++, Verilog, and Bluespec. The C++ version is 
+used by the reference design.
+
+Each of these follow the same basic strategy for processing a character:
+
+1) Map the character into a reduced alphabet so we don't need to consider all
+   ASCII characters (charMap()).
+2) Map the set of states into a reduced set to account for things like case
+   independence (stateMap()).
+2) Use that mapped character and mapped state to determine the next state 
+   (stateTransition()).
+3) Determine if the new state is an "accept" state of the dfa, in which case
+   a match has occurred. (acceptStates()).
+
+The C++ and Bluespec versions also include "fake" matchers that never report
+matchs. These make it easier to implement disabled patterns.
+
+regex-matcher.bsv   * Bluespec interface and module implementation.
+regex-matcher.h     * C++ header and class defintion
+regex-matcher.cpp   * C++ class implementation.
+regex-matcher.v     * Verilog implementation. Since Verilog does not allow us
+                      to define functions outside of modules we must include
+                      the entire FSM definition in the module. Thus if you
+                      update this code be sure to udate REParser.java to
+                      match.
+
