@@ -174,10 +174,16 @@ public class REParser
         out = out.concat("}\n\n");
         out = out.concat("REGEX_STATE stateTransition(REGEX_STATE mappedState, char mappedIn){\n");
         out = out.concat("  switch( mappedState ){\n");
+	int row_length = next[0].length;
         for (int i = 0; i < next.length; i++) 
         {
             int[] row = next[i];
             out = out.concat("    case " + i + ": switch ( mappedIn ) {\n");
+
+	    if(row_length != row.length){
+		System.out.println("DFAtoC: false assumptions about state transition table\n");
+		System.exit(-1);
+	    }
 
             for (int j = 0; j < row.length; j++)
             {
@@ -190,6 +196,10 @@ public class REParser
         out = out.concat("    default: return 0;\n");
         out = out.concat("  }\n");
         out = out.concat("}\n\n");
+
+	out = out.concat("int numStates = "+rmap.length+";\n");
+	out = out.concat("int numChars  = "+row_length+";\n\n");
+
         out = out.concat("static REGEX_MATCHER getRegexMatcher(charMap, stateMap, stateTransition, acceptStates, \"" + PATTERN_NAME + "\");\n\n");
         out = out.concat("#else\n\n");
         out = out.concat("static REGEX_MATCHER getRegexMatcher(\"" + PATTERN_NAME + "\");\n\n");
