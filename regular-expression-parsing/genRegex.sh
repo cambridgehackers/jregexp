@@ -1,4 +1,4 @@
 #!/bin/bash
 
 javac JLex/REParser.java
-java JLex.REParser C . ../patterns/ftp.category.pat xxx xxx
+java JLex.REParser C . ../patterns/ftp.category.pat jregexp jregexp
