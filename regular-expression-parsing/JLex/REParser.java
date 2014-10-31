@@ -31,9 +31,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
 
 public class REParser 
 {
@@ -53,7 +56,7 @@ public class REParser
 
 
         // Parse command-line arguments.
-        // C, Verilog, or Bluespec.
+        // C, Verilog,Bluespec,bin
         LANGUAGE_MODE = arg[0];
         // Output directory.
         OUTPUT_PATH = arg[1];
@@ -70,12 +73,12 @@ public class REParser
         {
             if (!isRegexComment(regex_file[i]))
             {
-                processRegex(regex_file[i]);
+                processRegex(regex_file[i], arg);
             }
         }
     }
         
-    private static void processRegex(String regex) throws IOException
+    private static void processRegex(String regex, String arg[]) throws IOException
     {
         // Create a lex file of for JLex.
         String lex_file = OUTPUT_PATH + "/regex.lex";
@@ -124,12 +127,71 @@ public class REParser
             String bsv_file = OUTPUT_PATH + "/" + REGEX_NAME + ".bsv";
             DFAtoBSV(next, cmap, rmap, accept, bsv_file);
         }
+	else if (LANGUAGE_MODE.equals("bin"))
+	{
+	    int MAX_NUM_CHARS = Integer.parseInt(arg[5]);
+	    int MAX_NUM_STATES = Integer.parseInt(arg[5]);
+	    DFAtoBIN(next, cmap, rmap, accept, OUTPUT_PATH, REGEX_NAME, MAX_NUM_CHARS, MAX_NUM_STATES);
+	}
         else
         {
-            System.out.println("Unrecognized language mode. Supported options are 'C' 'Verilog' and 'Bluespec'.");
+            System.out.println("Unrecognized language mode. Supported options are 'C' 'Verilog' 'Bluespec' and 'bin'.");
         }
     }
+
     
+    
+    private static void DFAtoBIN(int[][] next, int[] cmap, int[] rmap, int[] accept, String output_path, 
+				 String regex_name, int max_num_chars, int max_num_states) throws IOException
+    {
+        FileOutputStream charMap = new FileOutputStream(output_path+"/"+regex_name+".charMap");
+	FileOutputStream stateMap = new FileOutputStream(output_path+"/"+regex_name+".stateMap");
+	FileOutputStream stateTransitions = new FileOutputStream(output_path+"/"+regex_name+".stateTransitions");
+
+	ByteBuffer b = ByteBuffer.allocate(4);
+	if(max_num_states!=32){
+	    System.err.println("MAX_NUM_STATES != 32");
+	    System.exit(-1);
+	}
+	if(max_num_chars!=32){
+	    System.err.println("MAX_NUM_CHARS != 32");
+	    System.exit(-1);
+	}
+
+        for (int i = 0; i < 256; i++) //all 8-bit chars
+        {
+            charMap.write(cmap[i]);
+        }
+
+        for (int i = 0; i < rmap.length; i++)
+        {
+	    b.putInt(0, rmap[i]);
+	    stateMap.write(b.array()[3] | (accept[i]<<7));
+        }
+
+        for (int i = 0; i < next.length; i++) 
+        {
+	    if(next[0].length != next[i].length){
+		System.out.println("DFAtoBIN: false assumptions about state transition table\n");
+		System.exit(-1);
+	    }
+            for (int j = 0; j < max_num_chars; j++)
+            {
+		if(j < next[i].length)
+		    b.putInt(0, next[i][j]);
+		else
+		    b.putInt(0,0);
+                stateTransitions.write(b.array()[3]);
+            }
+        }
+
+	charMap.close();
+	stateMap.close();        
+	stateTransitions.close();
+        
+    }
+
+
     private static void DFAtoC(int[][] next, int[] cmap, int[] rmap, int[] accept, String filename) throws IOException
     {
         // This mess of code generates a C file with functions of the appropriate type.
